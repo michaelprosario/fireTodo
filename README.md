@@ -1,11 +1,14 @@
-A friend of mine from our local Google developer group requested that we cover content that would help during a hackathon.  In particular, he had become curious about learning patterns for back-end development.  With this in mind, I wanted to share some content around Vue and Google FireStore. 
+A friend of mine from our local Google developer group(GDG) requested that we cover content that would help during a hackathon.  In particular, he had become curious about learning patterns for rapid back-end prototyping.  With this in mind, I wanted to share some content around Vue and Google FireStore. 
 
 ## Motivations for using VueJS+FireStore
 
 VueJS has become respected for it's simplicity and speed.  In contrast with Angular, it has a lower concept count making it easier to learn.  
 
-Google FireStore, a non-SQL platform as a service, provides a robust and scalable tool for building web and mobile apps.  The platform provides features for data storage, analytics, identity, authorization, and more.  I'm convinced that it's a great prototyping platform.  FireStore has a very generous free tier. It's worth checking out.  In this post, we'll walk through the process of building a small todo app using VueJS, FireStore, VueCLI, and TypeScript. 
+https://vuejs.org/
 
+Google FireStore, a no-SQL platform as a service, provides a robust and scalable tool for building web and mobile apps.  The platform provides features for data storage, analytics, identity, authorization, and more.  I'm convinced that it's a great prototyping platform.  FireStore has a very generous free tier. It's worth checking out.  In this post, we'll walk through the process of building a small todo app using VueJS, FireStore, VueCLI, and TypeScript. 
+
+https://firebase.google.com/docs/firestore/
 
 ## Setup of vue/typescript/cli 
 
@@ -15,7 +18,9 @@ https://cli.vuejs.org/guide/creating-a-project.html#vue-create
 
 ## Major parts of Todo.vue
 
+Please note that you can review the completed demo code at the following github repo: https://github.com/michaelprosario/fireTodo
 
+In the 'src\views' directory of the project, we created a template called Todo.vue.  I like keeping my TypeScript in a different file from the markup.  In the last line of the Todo.vue, we implement a script reference to 'Todo.ts' and created the file.
 
 ```html
 <template>
@@ -29,6 +34,9 @@ https://cli.vuejs.org/guide/creating-a-project.html#vue-create
 
 ## Form to capture todo
 
+In the following code, we setup a very simple form in Todo.vue to capture a new item.  In this context, a todo item has an action, complexity, and priority as strings. You'll notice the 'v-model' attributes that bind the content of the text boxes to their respective component properties.  We've also added a 'saveTask' method to commit the todo item to the database.
+
+
 ```html
 <div>Task</div>
 <div><input type="text" id="txtAction" v-model="action"></div>
@@ -39,27 +47,9 @@ https://cli.vuejs.org/guide/creating-a-project.html#vue-create
 <div><button v-on:click="saveTask()">Save task</button></div>
 ```
 
-## List todo items
-
-```html
-<table  class='table'>
-<tr>
-    <td>Action</td>
-    <td>Priority</td>
-    <td>Complexity</td>
-</tr>
-<tr v-for='task in tasks' v-bind:key='task.id'>
-    <td>{{task.action}}</td>
-    <td>{{task.complexity}}</td>
-    <td>{{task.priority}}</td>
-    <td >
-    <button v-on:click="removeTask(task)">Delete</button>
-    </td>
-</tr>
-</table>
-```
-
 ## Adding behavior to Todo.vue
+
+Let's checkout the implementation of Todo.ts to see how we manage data at a high level.  In the data section, we initialize the state of our component.  We set the tasks collection to an empty array.  We also initialize our form properties to empty strings.  In the architecture of Angular, I really appreciate how data operations get encapsulated into services.  I've tried to model this practice in this demo code.   All the FireStore database operations are encapsulated in a class called TodoDataServices.   In the 'saveTask' method, we create an instance of this service, populate a todo record, and store it using the data service.  When the add operation completes, we re-load the list.
 
 ```javascript
 import Vue from 'vue';
@@ -108,33 +98,9 @@ export default Vue.extend({
 
 ```
 
-## Todo class
-```javascript
-export class TodoRecord{
-    id: string = '';
-    action: string = '';
-    priority: string = '';
-    complexity: string = '';
-}
-```
-
-## Mapping Firebase document too Todo class
-
-```javascript
-export function DocToTodoRecordMap(doc) : TodoRecord {
-    var rowData = doc.data();
-    var record = {
-        id: doc.id,
-        action: rowData.action,
-        priority: rowData.priority,
-        complexity: rowData.complexity
-    };
-    
-    return record;
-}
-```
-
 ## TodoDataService
+
+There's not a lot of complexity in the TodoDataService.   The 'add' method passes the todo record to a class called FireStoreDataServices.  This class helps create re-usable code fore Google FireStore operations.   In the add call, we pass the todo record and the name of the database table or collection.
 
 ```javascript
 export class TodoDataServices{
@@ -158,7 +124,6 @@ export class TodoDataServices{
     }
 }
 ```
-
 
 ## FireStoreDataServices
 
@@ -216,6 +181,71 @@ addRecord(recordObject: any, tableName: string) {
     });
 }
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## List todo items
+
+```html
+<table  class='table'>
+<tr>
+    <td>Action</td>
+    <td>Priority</td>
+    <td>Complexity</td>
+</tr>
+<tr v-for='task in tasks' v-bind:key='task.id'>
+    <td>{{task.action}}</td>
+    <td>{{task.complexity}}</td>
+    <td>{{task.priority}}</td>
+    <td >
+    <button v-on:click="removeTask(task)">Delete</button>
+    </td>
+</tr>
+</table>
+```
+
+
+## Todo class
+```javascript
+export class TodoRecord{
+    id: string = '';
+    action: string = '';
+    priority: string = '';
+    complexity: string = '';
+}
+```
+
+## Mapping Firebase document too Todo class
+
+```javascript
+export function DocToTodoRecordMap(doc) : TodoRecord {
+    var rowData = doc.data();
+    var record = {
+        id: doc.id,
+        action: rowData.action,
+        priority: rowData.priority,
+        complexity: rowData.complexity
+    };
+    
+    return record;
+}
+```
+
+
+
+
+
 
 ## Delete Stuff
 
