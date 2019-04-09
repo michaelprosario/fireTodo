@@ -32,9 +32,9 @@ In the 'src\views' directory of the project, we created a template called Todo.v
 
 ```
 
-## Form to capture todo
+## Saving a Todo
 
-In the following code, we setup a very simple form in Todo.vue to capture a new item.  In this context, a todo item has an action, complexity, and priority as strings. You'll notice the 'v-model' attributes that bind the content of the text boxes to their respective component properties.  We've also added a 'saveTask' method to commit the todo item to the database.
+In the following code, we setup a very simple form in Todo.vue to capture a new item.  In this context, a todo item has an action, complexity, and priority as strings. You'll notice the 'v-model' attributes that bind the content of the text boxes to their Vue respective component properties.  We've also added a 'saveTask' method to commit the todo item to the database.
 
 
 ```html
@@ -111,7 +111,8 @@ export class TodoDataServices{
     }
 
     Add(todo: TodoRecord){
-        var data = JSON.parse(JSON.stringify(todo));  // not sure why this hack is needed
+        // Not sure why this hack is needed. I'm still researching the type information causes issues.
+        var data = JSON.parse(JSON.stringify(todo));  
         return this.dataServices.addRecord(data, "tasks");
     }
 
@@ -126,6 +127,8 @@ export class TodoDataServices{
 ```
 
 ## FireStoreDataServices
+
+The FireStore data services class encapsulates the major database operations of FireStore.  For each database operation(add, update, get, delete, list), we return data using promises.  This helps us communicate success and failures to the caller. 
 
 ```javascript
 import db from './FirebaseConfig';
@@ -166,6 +169,8 @@ export class FireStoreDataServices {
 ```
 
 ## Adding Stuff
+
+In the implementation of 'addRecord', we accept parameters of the record to store and the database table name.  (i.e. document collection)  When the database add operation works, we call resolve with the id of the new document created.  If an error happens, we share the error details with the caller using 'reject.'
 
 ```javascript
 addRecord(recordObject: any, tableName: string) {
