@@ -231,7 +231,7 @@ export class TodoRecord{
 }
 ```
 
-## Mapping Firebase document too Todo class
+## Mapping Firebase document to Todo class
 
 ```javascript
 export function DocToTodoRecordMap(doc) : TodoRecord {
